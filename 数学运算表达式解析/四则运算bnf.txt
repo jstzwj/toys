@@ -1,3 +1,4 @@
+/*第一版*/
 Digit ::= "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
 UnsignedInteger ::= Digit | Digit UnsignedInteger
 Integer ::= "+" UnsignedInteger | "-" UnsignedInteger | UnsignedInteger
@@ -7,10 +8,45 @@ ScientificNumber ::= FloatNumber "e" Integer | FloatNumber "E" Integer
 
 Number ::= Integer | FloatNumber | ScientificNumber
 MultDivPureExpression ::= Number {("*"|"/") Number }
-AddSubPureExpression ::= MultDivPureExpression {("*"|"/") MultDivPureExpression }
+AddSubPureExpression ::= MultDivPureExpression {("+"|"-") MultDivPureExpression }
 PureExpression ::= AddSubPureExpression | "(" PureExpression ")"
 
-MultDivExpression ::= PureExpression {("+"|"-") PureExpression }
-Expression ::= MultDivExpression {("+"|"-") MultDivExpression}
+MultDivExpression ::= PureExpression {("*"|"/") PureExpression }
+AddSubExpression ::= MultDivExpression {("+"|"-") MultDivExpression}
+Expression ::= AddSubExpression | "(" AddSubExpression ")"
+
+
+/*第二版*/
+Digit ::= "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
+UnsignedInteger ::= Digit | Digit UnsignedInteger
+Integer ::= "+" UnsignedInteger | "-" UnsignedInteger | UnsignedInteger
+FloatNumber ::= Integer "." UnsignedInteger
+ScientificNumber ::= FloatNumber "e" Integer | FloatNumber "E" Integer 
+
+
+Number ::= Integer | FloatNumber | ScientificNumber
+MultDivExpression ::= ( Number|Expression ) {("*"|"/") ( Number|Expression ) }		//注意左递归
+AddSubExpression ::= MultDivExpression {("+"|"-") MultDivExpression }
+Expression ::= AddSubExpression | "(" Expression ")"
+
+
+
+/*第三版*/
+Digit ::= "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
+UnsignedInteger ::= Digit | Digit UnsignedInteger
+Integer ::= "+" UnsignedInteger | "-" UnsignedInteger | UnsignedInteger
+FloatNumber ::= Integer "." UnsignedInteger
+ScientificNumber ::= FloatNumber "e" Integer | FloatNumber "E" Integer 
+
+
+Number ::= Integer | FloatNumber | ScientificNumber
+Unit ::= Number | "(" Expression ")"
+MultDivExpression ::= Unit {("*"|"/") Unit }
+AddSubExpression ::= MultDivExpression {("+"|"-") MultDivExpression }
+Expression ::= AddSubExpression
+
+
+
+
 
 1+(3*4+2)

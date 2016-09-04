@@ -116,230 +116,162 @@ int getInteger(const std::string & str, int & cur)
 		return getUnsignedInteger(str, cur);
 	}
 }
+
 ExpBase * ParseInteger(const std::string & str, int & cur)
 {
 	ExpNum * curnum;
 	curnum = new ExpNum;
-	try
-	{
-		curnum->numvalue = getInteger(str, cur);
-	}
-	catch (char *)
-	{
-		return nullptr;
-	}
+
+	curnum->numvalue = getInteger(str, cur);
+
 	return curnum;
 }
+
 ExpBase * ParseNumber(const std::string & str, int & cur)
 {
 	ExpBase * curptr;
 	curptr = ParseInteger(str, cur);
 	return curptr;
 }
-ExpBase * ParseMultDivPureExpression(const std::string & str, int & cur)
-{
-	ExpBase * curptr = nullptr;
-	ExpOp * ptr = nullptr;
 
-	curptr = ParseNumber(str, cur);
-	if (curptr != nullptr)
-	{
-		while (1)
-		{
-			if (str[cur] == '*' || str[cur] == '/')
-			{
-				ptr = new ExpOp;
-				ptr->opvalue = str[cur];
-				ptr->left = curptr;
+ExpBase * ParseExpression(const std::string & str, int & cur);
 
-				++cur;
-				curptr = ParseNumber(str, cur);
-				if (curptr == nullptr)
-				{
-					curptr = ptr->left;
-					delete ptr;
-					--cur;
-					return curptr;
-				}
-				else
-				{
-					ptr->right = curptr;
-					curptr = ptr;
-				}
-			}
-			else
-			{
-				return curptr;
-			}
-		}
-
-	}
-	else
-	{
-		return nullptr;
-	}
-}
-ExpBase * ParseAddSubPureExpression(const std::string & str, int & cur)
-{
-	ExpBase * curptr=nullptr;
-	ExpOp * ptr=nullptr;
-
-	curptr = ParseMultDivPureExpression(str, cur);
-	if (curptr != nullptr)
-	{
-		while (1)
-		{
-			if (str[cur] == '+' || str[cur] == '-')
-			{
-				ptr = new ExpOp;
-				ptr->opvalue = str[cur];
-				ptr->left = curptr;
-
-				++cur;
-				curptr = ParseMultDivPureExpression(str, cur);
-				if (curptr == nullptr)
-				{
-					curptr = ptr->left;
-					delete ptr;
-					--cur;
-					return curptr;
-				}
-				else
-				{
-					ptr->right = curptr;
-					curptr = ptr;
-				}
-			}
-			else
-			{
-				return curptr;
-			}
-		}
-		
-	}
-	else
-	{
-		return nullptr;
-	}
-}
-ExpBase * ParsePureExpression(const std::string & str, int & cur)
-{
-	ExpBase * curptr;
-	if (str[cur] == '(')
-	{
-		++cur;
-		curptr = ParsePureExpression(str, cur);
-		if (curptr == nullptr)
-		{
-			--cur;
-			return curptr;
-		}
-		if (str[cur] == ')')
-		{
-			++cur;
-		}
-		else
-		{
-			//throw "can not find right brancket";
-			return curptr;
-		}
-		
-	}
-	else
-	{
-		curptr = ParseAddSubPureExpression(str, cur);
-	}
-	return curptr;
-}
 ExpBase * ParseMultDivExpression(const std::string & str, int & cur)
 {
 	ExpBase * curptr = nullptr;
 	ExpOp * ptr = nullptr;
-	ExpOp * ptrtmp = nullptr;
+	int curtmp=cur;
 
-	curptr = ParsePureExpression(str, cur);
-
-	if (curptr != nullptr)
+	try
 	{
-		while (1)
+		curptr = ParseNumber(str,cur);
+	}
+	catch(char *e)
+	{
+		try
 		{
-			if (str[cur] == '*' || str[cur] == '/')
-			{
-				ptr = new ExpOp;
-				ptr->opvalue = str[cur];
-				ptr->left = curptr;
+			curptr = ParseExpression(str,cur);
+		}
+		catch (char *e)
+		{
+			cur = curtmp;
+			throw e;
+		}
+	}
 
-				++cur;
-				curptr = ParsePureExpression(str, cur);
-				if (curptr != nullptr)
-				{
-					ptr->right = curptr;
-					curptr = ptr;
-				}
-				else
-				{
-					--cur;
-					delete ptr;
-					throw "multi nothing";
-				}
-			}
-			else
+	while (str[cur]=='*'||str[cur]=='/')
+	{
+		
+		ptr = new ExpOp;
+		ptr->opvalue = str[cur];
+		ptr->left = curptr;
+
+		++cur;
+
+		try
+		{
+			curptr = ParseNumber(str, cur);
+		}
+		catch (char *e)
+		{
+			try
 			{
-				return curptr;
+				curptr = ParseExpression(str, cur);
+			}
+			catch (char *e)
+			{
+				cur = curtmp;
+				delete ptr;
+				throw e;
 			}
 		}
+		ptr->right = curptr;
+		curptr = ptr;
+	}
+	return curptr;
+}
 
-	}
-	else
+
+ExpBase * ParseAddSubExpression(const std::string & str, int & cur)
+{
+	ExpBase * curptr = nullptr;
+	ExpOp * ptr = nullptr;
+	int curtmp = cur;
+
+	try
 	{
-		throw "can not find ParsePureExpression";
+		curptr = ParseMultDivExpression(str, cur);
 	}
+	catch (char *e)
+	{
+		cur = curtmp;
+		throw e;
+	}
+
+	while (str[cur] == '+' || str[cur] == '-')
+	{
+		ptr = new ExpOp;
+		ptr->opvalue = str[cur];
+		ptr->left = curptr;
+
+		++cur;
+
+		try
+		{
+			curptr = ParseMultDivExpression(str, cur);
+		}
+		catch (char *e)
+		{
+			cur = curtmp;
+			delete ptr;
+			throw e;
+		}
+		ptr->right = curptr;
+		curptr = ptr;
+	}
+	return curptr;
 }
 ExpBase * ParseExpression(const std::string & str, int & cur)
 {
-	ExpBase * curptr=nullptr;
-	ExpOp * ptr=nullptr;
-	ExpOp * ptrtmp = nullptr;
+	ExpBase * curptr;
+	int curtmp = cur;
 
-	curptr = ParseMultDivExpression(str, cur);
-
-	if (curptr != nullptr)
+	try
 	{
-		while (1)
+		if (str[cur]=='(')
 		{
-			if (str[cur] == '+' || str[cur] == '-')
+			++cur;
+			curptr = ParseExpression(str, cur);
+			if (str[cur] == ')')
 			{
-				ptr = new ExpOp;
-				ptr->opvalue = str[cur];
-				ptr->left = curptr;
-
 				++cur;
-				curptr = ParseMultDivExpression(str, cur);
-				if (curptr != nullptr)
+				if (str[cur]!='\0')
 				{
-					ptr->right = curptr;
-					curptr = ptr;
+					cur = curtmp;
+					throw "";
 				}
-				else
-				{
-					--cur;
-					delete ptr;
-					throw "add nothing";
-				}
-			}
-			else
-			{
-				return curptr;
 			}
 		}
-		
+		else
+		{
+			cur = curtmp;
+			throw "";
+		}
 	}
-	else
+	catch (char *e)
 	{
-		throw "can not find MultDivExpression";
+		try
+		{
+			curptr = ParseAddSubExpression(str, cur);
+		}
+		catch (char *e)
+		{
+			throw "ERROR";
+		}
 	}
+	
+	return curptr;
 }
-
 
 
 
