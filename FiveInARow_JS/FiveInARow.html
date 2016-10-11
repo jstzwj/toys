@@ -31,6 +31,8 @@
   var w=13;
   var h=13;
   var interval=25.0;
+  //模式
+  var mode=0; //0=人人,1=人机，2=机机
   //整体偏移
   var offX=50,offY=50;
   //存储光标位置
@@ -129,17 +131,71 @@
     }
 
   }
-  //换手
-  function turnSwap()
+  //point
+  Point=function Point(x,y)
   {
-    if(whichTurn==1)
+    this.x=x;
+    this.y=y;
+  }
+  //chessPoint
+  ChessPoint=function ChessPoint(x,y,color)
+  {
+    this.x=x;
+    this.y=y;
+    this.color=color;
+  }
+  function movePoint(pt,degree,len)
+  {
+    var dircos=[1,1,0,-1,-1,-1,0,1];
+    var dirsin=[0,1,1,1,0,-1,-1,-1];
+    return  new Point(pt.x+dircos[degree/45]*len,pt.y+dirsin[degree/45]*len);
+  }
+  //机器ai
+  function getNextPos(color)
+  {
+    var myColor=color;
+    var otherColor;
+    if(color==1)
     {
-      whichTurn=2;
+      otherColor=2;
     }
     else
     {
-      whichTurn=1;
+      otherColor=1;
     }
+    //临时存储棋盘
+    var chessBoardTmp=new Array(h);
+    //初始化
+    for(var i=0;i<h;++i)
+    {
+      chessBoardTmp[i]=new Array(w);
+      for(var j=0;j<w;++j)
+      {
+        chessBoardTmp[i][j]=0;//1=黑棋，2=白棋
+      }
+    }
+
+
+  }
+  //换手
+  function turnSwap()
+  {
+    if(mode==0)
+    {
+      if(whichTurn==1)
+      {
+        whichTurn=2;
+      }
+      else
+      {
+        whichTurn=1;
+      }
+    }
+    else if (mode==1)
+    {
+      getNextPos();
+    }
+
   }
   //判断一个点是否越界
   function judgeOverRange(in_w,in_h)
