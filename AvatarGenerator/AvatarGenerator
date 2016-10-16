@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="all" />
+<meta name="author" content="w3school.com.cn" />
+
+
+
+</head>
+
+
+
+
+<body>
+<canvas id="myCanvas" width="100" height="100"></canvas>
+
+
+
+</body>
+
+<script type="text/javascript">
+
+
+//github头像生成
+var PixelAvatar=(function(){
+  var canvas;
+  var context;
+  var w=5,h=5;
+  var pixelArray=new Array(h);
+  for(var i=0;i<h;++i){
+    pixelArray[i]=new Array(w);
+    for(var j=0;j<w;++j){
+      pixelArray[i][j]=0;
+    }
+  }
+  var color="rgb(0,0,0)";
+  var bgcolor="rgb(230,230,230)";
+
+  return{
+    //初始化
+    init:function(canvasName){
+      canvas = document.getElementById(canvasName);
+      context = canvas.getContext("2d");
+    },
+    //清理图像
+    cleanImage:function(){
+      for(var i=0;i<h;++i){
+        for(var j=0;j<w;++j){
+          pixelArray[i][j]=0;
+        }
+      }
+    },
+    //编译字符串--格式--r,g,b,point1y,point1x,point2y,point2x......
+    parseString:function(str){
+      var strArray=new Array();
+      strArray=str.split(",");
+      if(strArray.length<3){
+        return false;
+      }
+      color="rgb("+strArray[0]+","+strArray[1]+","+strArray[2]+")";
+
+      for(var i=3;i<strArray.length;i+=2){
+        pixelArray[strArray[i]][strArray[i+1]]=1;
+      }
+      return true;
+    },
+    //随机获取头像字符串
+    getRandomAvatar:function(){
+      var str="";
+      var r=0.0,g=0.0,b=0.0;
+      while(r<100||g<100||b<100){
+        r=Math.random()*255;
+        g=Math.random()*255;
+        b=Math.random()*255;
+      }
+      str+=Math.floor(r)+",";
+      str+=Math.floor(g)+",";
+      str+=Math.floor(b);
+
+      for(var i=0;i<h;++i){
+        for(var j=0;j<w/2;++j){
+          if(Math.random()>0.5){
+            str+=","+i+","+j;
+            str+=","+i+","+(w-j-1);
+          }
+        }
+      }
+      return str;
+    },
+    //画出头像
+    drawAAvatar:function(){
+      context.fillStyle=bgcolor;
+      context.fillRect(0,0,canvas.width,canvas.height);
+      context.fillStyle=color;
+      for(var i=0;i<h;++i){
+        for(var j=0;j<w;++j){
+          if(pixelArray[i][j]==1){
+            context.fillRect(j*(canvas.width/w),i*(canvas.height/h),canvas.width/w,canvas.height/h);
+          }
+        }
+      }
+      return;
+    }
+  }
+})();
+
+PixelAvatar.init("myCanvas");
+var str=PixelAvatar.getRandomAvatar();
+PixelAvatar.cleanImage();
+PixelAvatar.parseString(str);
+PixelAvatar.drawAAvatar();
+
+</script>
+
+
+</html>
