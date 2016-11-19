@@ -1,0 +1,279 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="all" />
+<meta name="author" content="w3school.com.cn" />
+
+<!--
+<script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+-->
+<style>
+.body{
+  position: relative;
+}
+.powerchart{
+  position:absolute;
+  top: 25%;
+  left: 25%;
+
+}
+
+</style>
+
+
+</head>
+
+
+
+
+<body>
+<canvas class="powerchart" id="myCanvas" width="500" height="500"></canvas>
+
+
+
+</body>
+
+<script type="text/javascript">
+
+
+  var canvas = document.getElementById("myCanvas");
+  var context = canvas.getContext("2d");
+  var interal = setInterval(function () { step();},50);
+
+
+  var w=1;
+  var h=1;
+  var newid;
+  var interval=25.0;
+  //整体偏移
+  var offX=50,offY=50;
+  //存储光标位置
+  var cursorX,cursorY;
+  //节点总数
+  var nodesNum;
+  //存储节点对象
+  var nodes;
+  //存储节点信息
+  var layers;
+  //节点半径
+  var nodeR=10;
+  //节点间连线
+  function Link(father,children){
+    this.father=father;
+    this.children=children;
+  }
+  //节点
+  function Node(id,name,color,w,h,r,father,children){
+        this.id=id;
+        this.name=name;
+        this.color=color;
+        this.w=w;
+        this.h=h;
+        this.pixW=0;
+        this.pixH=0;
+        this.r=r;
+        this.father=father;
+        this.children=children;
+　}
+  //获取深度
+  function getTreeDeepth(){
+
+  }
+  //获取宽度
+  function getTreeWidth(){
+
+  }
+  //初始化
+  function init(){
+    //h=getTreeDeepth();
+    //w=getTreeWidth();
+    h=3;
+    w=4;
+    nodesSum=7;
+    //加入节点
+    nodes=new Array(nodesNum);
+    nodes[0]=new Node(0,"超级管理员","rgb(255,255,255)",0,0,6,"","1,2");
+    nodes[1]=new Node(1,"二级","rgb(255,255,255)",0,1,6,"0","3,4");
+    nodes[2]=new Node(2,"另一个二级","rgb(255,255,255)",1,1,6,"0","5,6");
+    nodes[3]=new Node(3,"学生","rgb(255,255,255)",0,2,6,"1","");
+    nodes[4]=new Node(4,"研究生","rgb(255,255,255)",1,2,6,"1","");
+    nodes[5]=new Node(5,"临时卡","rgb(255,255,255)",2,2,6,"2","");
+    nodes[6]=new Node(6,"清洁卡","rgb(255,255,255)",3,2,6,"2","");
+    //加入层
+    layers=new Array(h);
+    layers[0]=1;
+    layers[1]=2;
+    layers[2]=4;
+    //计算节点真实位置
+    for(var i=0;i<nodes.length;++i){
+      nodes[i].pixW=posToPix(nodes[i].w,nodes[i].h).tmpw;
+      nodes[i].pixH=posToPix(nodes[i].w,nodes[i].h).tmph;
+    }
+  }
+
+
+  //添加节点
+  function addNode(){
+
+  }
+  //写字
+  function drawText(words,w,h){
+    //context.font="20px Georgia";
+    context.strokeStyle = "rgb(0,0,0)";
+    context.fillStyle = "rgb(0,0,0)";
+    context.fillText(words,w,h);
+  }
+  //画方框
+  function drawRectangle(w,h,wLen,hLen,color){
+    context.strokeStyle = color;
+    context.rect(w,h,wLen,hLen);
+    context.stroke();
+  }
+  //画线
+  function drawLine(w1,h1,w2,h2)
+  {
+    context.strokeStyle = "rgb(0,0,0)";
+
+    context.moveTo(w1, h1);
+    context.lineTo(w2,h2);
+    context.stroke();
+  }
+  //画点
+  function drawPoint(w,h,color)
+  {
+    context.strokeStyle = "rgb(0,0,0)";
+    context.fillStyle = color;
+    context.beginPath();
+    context.arc(w,h,3,0,Math.PI*2,true);
+    context.closePath();
+
+    //context.stroke();
+    context.fill();
+  }
+  //画圆
+  function drawCircle(w,h,r,in_color)
+  {
+    context.strokeStyle = "rgb(0,0,0)";
+    context.fillStyle = in_color;
+
+    //外框
+    context.beginPath();
+    context.arc(w,h,r,0,Math.PI*2,true);
+    context.closePath();
+
+    context.fill();
+    context.stroke();
+  }
+  //获取节点对象
+  function getNodeById(id){
+    for(var i=0;i<nodes.length;++i){
+      if(nodes[i].id==id){
+        return nodes[i];
+      }
+    }
+  }
+  //数组节点转真实像素
+  function posToPix(w,h){
+    var tmpw=(canvas.width)/(layers[h])*(w+0.5);
+    var tmph=(canvas.height)/(layers.length)*(h+0.5);
+    return{
+      tmpw:tmpw,
+      tmph:tmph
+    }
+  }
+  //画节点
+  function drawAllNodes()
+  {
+    for(var i=0;i<nodes.length;++i){
+      var tmpw=(canvas.width)/(layers[nodes[i].h])*(nodes[i].w+0.5);
+      var tmph=(canvas.height)/(layers.length)*(nodes[i].h+0.5);
+      drawCircle(tmpw,tmph,nodeR,nodes[i].color);
+    }
+  }
+  //画连线
+  function drawAllLines(){
+    for(var i=0;i<nodes.length;++i){
+      if(nodes[i].children!=""){
+        var strArry=nodes[i].children.split(",");
+        for(var k=0;k<strArry.length;++k){
+          var secNode=getNodeById(parseInt(strArry[k]));
+          var tmpw1=(canvas.width)/(layers[nodes[i].h])*(nodes[i].w+0.5);
+          var tmph1=(canvas.height)/(layers.length)*(nodes[i].h+0.5);
+          var tmpw2=(canvas.width)/(layers[secNode.h])*(secNode.w+0.5);
+          var tmph2=(canvas.height)/(layers.length)*(secNode.h+0.5);
+          drawLine(tmpw1,tmph1,tmpw2,tmph2);
+        }
+      }
+    }
+  }
+
+  init();
+
+  function step()
+  {
+    //清屏
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    //绘制图形
+    drawAllLines();
+    drawAllNodes();
+    //绘制名字方框
+    if(isPointer==true&&activeNode!=-1){
+      //显示名称
+      drawRectangle(nodes[activeNode].pixW,nodes[activeNode].pixH-35,75,25);
+      drawText(nodes[activeNode].name,nodes[activeNode].pixW+5,nodes[activeNode].pixH-16);
+    }
+
+  }
+  //求点与点距离的平方
+  function distanceSquare(w1,h1,w2,h2){
+    return (w1-w2)*(w1-w2)+(h1-h2)*(h1-h2);
+  }
+  //获取鼠标在canvas中位置
+  function getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left * (canvas.width / rect.width),
+      y: evt.clientY - rect.top * (canvas.height / rect.height)
+    }
+  }
+
+  var isPointer=false;
+  var activeNode=-1;
+  canvas.onmousemove=function(e)
+  {
+    var pos=getMousePos(document.getElementById("myCanvas"), e)
+    cursorX=pos.x;
+    cursorY=pos.y;
+    //判断位于哪个圆内
+    var i;
+    for(i=0;i<nodes.length;++i){
+      if(distanceSquare(nodes[i].pixW,nodes[i].pixH,cursorX,cursorY)<nodes[i].r*nodes[i].r){
+        break;
+      }
+    }
+    if(i!=nodes.length){
+      if(isPointer==false){
+        document.getElementById("myCanvas").style.cursor="pointer";
+      }
+      activeNode=i;
+      isPointer=true;
+    }else{
+      if(isPointer==true){
+        document.getElementById("myCanvas").style.cursor="default";
+      }
+      activeNode=-1;
+      isPointer=false;
+    }
+  }
+  canvas.onclick=function(e)
+  {
+
+  }
+
+
+</script>
+
+
+</html>
