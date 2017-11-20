@@ -153,14 +153,19 @@ def policyiterationRandom(rewards, states, actions, gamma, probs):
             print(table)
             for eachState in range(0,stateNum):
                 for eachAction in range(0, actionNum):
-                    nextState= states[eachState]+actions[eachAction]
-                    if nextState<0 or nextState>=len(states):
-                        newval=rewards[eachState][eachAction]
-                    else:
-                        newval=rewards[eachState][eachAction]+gamma*table[nextState][policy[nextState]]
+                    newval = 0
+                    for eachNextState in range(0,stateNum):
+                        probNewVal=gamma*table[eachNextState][policy[eachNextState]]
+                        if eachNextState==eachState-1:
+                            probNewVal=rewards[eachState][0]+gamma*table[eachNextState][policy[eachNextState]]
+                        if eachNextState==eachState+1:
+                            probNewVal=rewards[eachState][1]+gamma*table[eachNextState][policy[eachNextState]]
+                        if eachState==0 or eachState==5:
+                            probNewVal=0
+                        newval+=probs[eachState][eachAction][eachNextState]*probNewVal
 
-                    if eachState==0 or eachState==5:
-                        newval=0
+                        if eachState==0 or eachState==5:
+                            newval=0
                     
                     if table[eachState][eachAction]!=newval:
                         isItEnd=False
@@ -197,6 +202,13 @@ print(qiterationRandom([[0,0],[1,0],[0,0],[0,0],[0,5],[0,0]],[0,1,2,3,4,5],[-1,1
 print("策略迭代异步确定")
 print(policyiteration([[0,0],[1,0],[0,0],[0,0],[0,5],[0,0]],[0,1,2,3,4,5],[-1,1],0.5))
 
+print("策略迭代异步随机")
+print(policyiterationRandom([[0,0],[1,0],[0,0],[0,0],[0,5],[0,0]],[0,1,2,3,4,5],[-1,1],0.5,[[[0.15,0.05,0,0,0,0],[0.15,0.8,0,0,0,0]]
+                                                                                       ,[[0.8,0.15,0.05,0,0,0],[0.05,0.15,0.8,0,0,0]]
+                                                                                       ,[[0,0.8,0.15,0.05,0,0],[0,0.05,0.15,0.8,0,0]]
+                                                                                       ,[[0,0,0.8,0.15,0.05,0],[0,0,0.05,0.15,0.8,0]]
+                                                                                       ,[[0,0,0,0.8,0.15,0.05],[0,0,0,0.05,0.15,0.8]]
+                                                                                       ,[[0,0,0,0,0.8,0.15],[0,0,0,0,0.05,0.15]]]))
 
 
     
