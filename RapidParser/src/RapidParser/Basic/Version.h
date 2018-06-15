@@ -1,0 +1,6 @@
+#pragma once
+#ifndef RAPIDPARSER_VERSION
+#define RAPIDPARSER_VERSION
+
+
+#endif // !RAPIDPARSER_VERSION
