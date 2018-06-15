@@ -1,0 +1,10 @@
+#pragma once
+#ifndef VOCALSTUDIO_VERSION
+#define VOCALSTUDIO_VERSION
+
+#define VERSION_MINIMUM 0
+#define VERSION_MAXIMUM 1
+#define CURRENT_VERSION "0.0.1"
+
+
+#endif // !VOCALSTUDIO_VERSION

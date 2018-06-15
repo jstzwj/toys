@@ -1,0 +1,22 @@
+{
+    "name": "test",
+    "description": "The first test user in vocal studio.",
+    "avatar": "./resource/avatar.png",
+    "language": [{
+            "lang_name": "中文",
+            "lang_path": "zh",
+            "symbols": [{
+                "symbol_name": "pinyin",
+                "symbol_path": "pinyin.json"
+            }]
+        },
+        {
+            "lang_name": "English",
+            "lang_path": "en",
+            "symbols": [{
+                "symbol_name": "ipa",
+                "symbol_path": "ipa.json"
+            }]
+        }
+    ]
+}

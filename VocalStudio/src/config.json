@@ -1,0 +1,13 @@
+{
+    "singers":[
+        {
+            "name":"test",
+            "path":"/singers/test"
+        },
+        {
+            "name":"root",
+            "path":"/singers/root"
+        }
+    ]
+
+}
